@@ -1,12 +1,12 @@
-import 'package:flutter/src/foundation/key.dart';
-import 'package:flutter/src/widgets/framework.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class MessageBubble extends StatelessWidget {
   final String? message;
   final bool isMe;
-  const MessageBubble(this.message, this.isMe, {Key? key}) : super(key: key);
+  final String? userId;
+  const MessageBubble(this.message, this.isMe, this.userId, {Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -30,10 +30,35 @@ class MessageBubble extends StatelessWidget {
           ),
           padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
           margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-          child: Text(
-            message!,
-            style: TextStyle(
-                fontSize: 16, color: isMe ? Colors.black : Colors.white),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+                future: FirebaseFirestore.instance
+                    .collection("users")
+                    .doc(userId)
+                    .get(),
+                builder: (ctx, snapShot) {
+                  if (snapShot.connectionState == ConnectionState.waiting) {
+                    return const Text("Loading");
+                  }
+                  Map<String, dynamic> data =
+                      snapShot.data!.data() as Map<String, dynamic>;
+                  return Text(
+                    data["username"],
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: isMe ? Colors.black : Colors.white),
+                  );
+                },
+              ),
+              Text(
+                message!,
+                style: TextStyle(
+                    fontSize: 16, color: isMe ? Colors.black : Colors.white),
+              ),
+            ],
           ),
         ),
       ],

@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:ffi';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +38,6 @@ class Messages extends StatelessWidget {
             }
 
             final document = chatSnapShot.data!.docs;
-
             return ListView.builder(
               reverse: true,
               itemBuilder: (ctx, index) => Container(
@@ -45,6 +45,7 @@ class Messages extends StatelessWidget {
                 child: MessageBubble(
                   document[index]['text'],
                   document[index]["userId"] == futuresnapShot.data,
+                  document[index]['userId'],
                   key: ValueKey(document[index].id),
                 ),
               ),
