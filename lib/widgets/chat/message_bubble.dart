@@ -31,7 +31,8 @@ class MessageBubble extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
           margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment:
+                isMe ? CrossAxisAlignment.start : CrossAxisAlignment.end,
             children: [
               FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
                 future: FirebaseFirestore.instance
