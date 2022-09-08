@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_chat/widgets/image_picker.dart';
 
 class AuthForm extends StatefulWidget {
   final bool isLoading;
@@ -61,6 +62,7 @@ class _AuthFormState extends State<AuthForm> {
             child: Column(
               mainAxisSize: MainAxisSize.min, //take only space as it needs
               children: <Widget>[
+                if (!isLogin) const UserImagePicker(),
                 TextFormField(
                   key: const ValueKey('email'),
                   decoration: const InputDecoration(
