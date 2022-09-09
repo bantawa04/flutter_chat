@@ -18,24 +18,27 @@ class _AuthScreenState extends State<AuthScreen> {
   final _auth = FirebaseAuth.instance;
   var _isLoading = false;
 
-  Future<UploadTask?> uploadFile(File? file, String uid) async {
-    UploadTask uploadTask;
+  // Future<UploadTask?> uploadFile(File? file, String uid) async {
+  //   UploadTask uploadTask;
 
-    // Create a Reference to the file
-    Reference ref = FirebaseStorage.instance
-        .ref()
-        .child('user_images')
-        .child('$uid.jpg');
+  //   // Create a Reference to the file
+  //   Reference ref =
+  //       FirebaseStorage.instance.ref().child('user_images').child('$uid.jpg');
 
-    final metadata = SettableMetadata(
-      contentType: 'image/jpeg',
-      customMetadata: {'picked-file-path': file!.path},
-    );
+  //   final metadata = SettableMetadata(
+  //     contentType: 'image/jpeg',
+  //     customMetadata: {'picked-file-path': file!.path},
+  //   );
 
-    uploadTask = ref.putFile(File(file.path), metadata);
+  //   uploadTask = ref.putFile(File(file.path), metadata);
 
-    return Future.value(uploadTask);
-  }
+  //   uploadTask.whenComplete(() async {
+  //     final url = await ref.getDownloadURL();
+  //     inspect(url);
+  //     return Future.value(url);
+  //   });
+  //   return null;
+  // }
 
   void _submitAuthForm(String email, String username, String password,
       bool isLogin, BuildContext ctx, File pickedImage) async {
@@ -51,15 +54,34 @@ class _AuthScreenState extends State<AuthScreen> {
         authResult = await _auth.createUserWithEmailAndPassword(
             email: email, password: password);
 
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(authResult.user!.uid)
-            .set({
-          "username": username,
-          "email": email,
+        UploadTask uploadTask;
+
+        // Create a Reference to the file
+        Reference ref = FirebaseStorage.instance
+            .ref()
+            .child('user_images')
+            .child('${authResult.user!.uid}.jpg');
+
+        final metadata = SettableMetadata(
+          contentType: 'image/jpeg',
+          customMetadata: {'picked-file-path': pickedImage.path},
+        );
+
+        uploadTask = ref.putFile(File(pickedImage.path), metadata);
+
+        uploadTask.whenComplete(() async {
+          final url = await ref.getDownloadURL();
+          inspect(url);
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(authResult.user!.uid)
+              .set({
+            "username": username,
+            "email": email,
+            "image_url": url,
+          });
         });
-        final url = await uploadFile(pickedImage, authResult.user!.uid);
-        inspect(url);
+
         setState(() {
           _isLoading = false;
         });
