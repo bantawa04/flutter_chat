@@ -1,9 +1,11 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import '../widgets/auth_form.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({Key? key}) : super(key: key);
@@ -16,15 +18,33 @@ class _AuthScreenState extends State<AuthScreen> {
   final _auth = FirebaseAuth.instance;
   var _isLoading = false;
 
+  Future<UploadTask?> uploadFile(File? file, String uid) async {
+    UploadTask uploadTask;
+
+    // Create a Reference to the file
+    Reference ref = FirebaseStorage.instance
+        .ref()
+        .child('user_images')
+        .child('$uid.jpg');
+
+    final metadata = SettableMetadata(
+      contentType: 'image/jpeg',
+      customMetadata: {'picked-file-path': file!.path},
+    );
+
+    uploadTask = ref.putFile(File(file.path), metadata);
+
+    return Future.value(uploadTask);
+  }
+
   void _submitAuthForm(String email, String username, String password,
-      bool isLogin, BuildContext ctx) async {
+      bool isLogin, BuildContext ctx, File pickedImage) async {
     try {
       setState(() {
         _isLoading = true;
       });
       UserCredential authResult;
       if (isLogin) {
-
         authResult = await _auth.signInWithEmailAndPassword(
             email: email, password: password);
       } else {
@@ -38,6 +58,8 @@ class _AuthScreenState extends State<AuthScreen> {
           "username": username,
           "email": email,
         });
+        final url = await uploadFile(pickedImage, authResult.user!.uid);
+        inspect(url);
         setState(() {
           _isLoading = false;
         });
