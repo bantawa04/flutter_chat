@@ -28,7 +28,8 @@ class _AuthFormState extends State<AuthForm> {
   var _userEmail = '';
   var _userName = '';
   var _password = '';
-  File? _userImageFile;
+  File _userImageFile = File('');
+  
 
   void _pickedImage(File image) {
     _userImageFile = image;
@@ -38,7 +39,7 @@ class _AuthFormState extends State<AuthForm> {
     final isValid = _formKey.currentState!.validate();
     FocusScope.of(context).unfocus();
 
-    if (_userImageFile == null && !isLogin) {
+    if (!isLogin) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text("Please pick an image"),
@@ -57,7 +58,7 @@ class _AuthFormState extends State<AuthForm> {
         _password.trim(),
         isLogin,
         context,
-        _userImageFile!,
+        _userImageFile,
       );
     }
   }
@@ -140,9 +141,7 @@ class _AuthFormState extends State<AuthForm> {
                   height: 16,
                 ),
                 widget.isLoading
-                    ? const Center(
-                        child: CircularProgressIndicator(),
-                      )
+                    ? const CircularProgressIndicator()
                     : ElevatedButton(
                         onPressed: _trySumbit,
                         child: Text(isLogin ? "Login" : "Signup"),

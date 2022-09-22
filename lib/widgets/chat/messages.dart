@@ -20,9 +20,8 @@ class Messages extends StatelessWidget {
       future: _getUserData(),
       builder: (ctx, futuresnapShot) {
         if (futuresnapShot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
+          return  const CircularProgressIndicator();
+          
         }
         return StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance
